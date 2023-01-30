@@ -1,0 +1,85 @@
+CREATE OR REPLACE PACKAGE BODY APPS.XXKG_COM_PKG
+AS
+   FUNCTION GET_USER_NAME (P_USER_ID IN NUMBER)
+      RETURN VARCHAR2
+   IS
+      V_USER_NAME   FND_USER.USER_NAME%TYPE := '';
+
+      CURSOR P_USER_CURSOR
+      IS
+         SELECT USER_NAME
+           FROM FND_USER
+          WHERE USER_ID = P_USER_ID;
+   BEGIN
+      OPEN P_USER_CURSOR;
+
+      FETCH P_USER_CURSOR INTO V_USER_NAME;
+
+      CLOSE P_USER_CURSOR;
+
+      RETURN V_USER_NAME;
+   EXCEPTION
+      WHEN OTHERS
+      THEN
+         RETURN NULL;
+   END;
+   
+   
+FUNCTION GET_PREPARER_NAME (P_PREPARER_ID IN NUMBER)
+      RETURN VARCHAR2
+   IS
+      V_PREPARER_NAME   PER_ALL_PEOPLE_F.LAST_NAME%TYPE := '';
+
+      CURSOR P_PREPARER_CURSOR
+      IS
+         SELECT LAST_NAME
+           FROM PER_ALL_PEOPLE_F
+          WHERE PERSON_ID = P_PREPARER_ID;
+   BEGIN
+      OPEN P_PREPARER_CURSOR;
+
+      FETCH P_PREPARER_CURSOR INTO V_PREPARER_NAME;
+
+      CLOSE P_PREPARER_CURSOR;
+
+      RETURN V_PREPARER_NAME;
+   EXCEPTION
+      WHEN OTHERS
+      THEN
+         RETURN NULL;
+   END;
+
+  
+
+FUNCTION GET_DEPT_NAME (P_PERSON_ID IN NUMBER)
+      RETURN VARCHAR2
+   IS
+      V_DEPT_NAME   per_position_definitions.SEGMENT3%TYPE := '';
+
+      CURSOR P_DEPT_CURSOR
+      IS
+        SELECT distinct(ppds.SEGMENT3) Department
+            from per_all_assignments_f pasf,
+             per_all_people_f paaf,
+              per_positions pps,
+             per_position_definitions ppds
+            where pps.position_id= pasf.position_id
+            AND paaf.PERSON_ID = pasf.PERSON_ID
+             AND pps.POSITION_DEFINITION_ID = ppds.POSITION_DEFINITION_ID
+             AND  PAAF.PERSON_ID = P_PERSON_ID;     
+   BEGIN
+      OPEN  P_DEPT_CURSOR;
+
+      FETCH  P_DEPT_CURSOR INTO V_DEPT_NAME;
+
+      CLOSE P_DEPT_CURSOR;
+
+      RETURN V_DEPT_NAME;
+   EXCEPTION
+      WHEN OTHERS
+      THEN
+         RETURN NULL;
+   END;
+ 
+end;
+/
